@@ -1,10 +1,14 @@
-import { Body, Controller, HttpStatus, Post, Res, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, ParseIntPipe, Post, Query, Res, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateCampaignDto, CreateScheduleDto, insertScheduleDto } from 'src/app-common/dto/scheduleDto';
 import { SchedularService } from './schedular.service';
 import { HelperService } from './helper/helper.service';
 import { TaskService } from './task/task.service';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { user } from 'src/app-common/entity/user.entity';
+import { schedule } from 'src/app-common/entity/schedule.entity';
+import { task } from 'src/app-common/entity/task.entity';
+import { Pagination } from 'src/app-common/class/pagination/pagination';
 
 @ApiTags('schedular')
 @Controller('schedular')
@@ -94,5 +98,25 @@ export class SchedularController {
               })
         }
     }
-    
+    @UseGuards(AuthGuard)
+    @Get(':id')
+    @UsePipes(ValidationPipe)
+    async findAllScheduleByID(@Param ('id') id: number ): Promise<schedule> {
+      return this.schedularService.findByID(id)
+    }
+
+    @UseGuards(AuthGuard)
+    @Get('')
+    @UsePipes(ValidationPipe)
+    async findAllSchedular(@Query('limit', new ParseIntPipe()) limit: number, @Query('offset', new ParseIntPipe()) offset : number): Promise<schedule[]> {
+      if (limit && offset) {
+        return await this.schedularService.fetchAllWithLimit({
+          limit: limit,
+          offset: offset
+        })
+      } else {
+        return await this.schedularService.fetchAll();
+      }
+    }
+   
 }

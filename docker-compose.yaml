@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  mysqldb:
+    image: mysql
+    restart: always
+    env_file: ./.env
+    environment:
+      - username
+      - password
+    ports:
+      - $DB_LOCAL_PORT:$DB_DOCKER_PORT
+    volumes:
+      - db-config:/etc/mysql
+      - db-data:/var/lib/mysql
+      - ./db/backup/files/:/data_backup/data
+  timer-api:
+    build:
+      context: .
+      dockerfile: ./timer/Dockerfile
+    image: timer-sls
+    depends_on:
+      - mysqldb
+    stdin_open: true
+    ports:
+      - 3000:3000
+    tty: true
+volumes: 
+  db-config:
+  db-data:

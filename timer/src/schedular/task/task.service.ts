@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Pagination } from 'src/app-common/class/pagination/pagination';
 import { task } from 'src/app-common/entity/task.entity';
 import { EventJobService } from 'src/database/event-job.service';
 
@@ -17,5 +18,18 @@ export class TaskService {
         })
         this.eventJobService.initJobs()
         return result[0];
+    }
+    async fetchAllWithLimit({limit, offset} : Pagination): Promise<task[]>{
+    return await task.findAll({
+        limit,
+        offset
+        })
+    }
+    async findByID(id): Promise<task> {
+        return await task.findByPk(id);
       }
+    /**Fetch all the task */
+    async fetchAll(): Promise<task[]>{
+        return await task.findAll();
+    }
 }
